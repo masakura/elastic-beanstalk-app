@@ -140,6 +140,30 @@ resource "aws_elastic_beanstalk_environment" "environment" {
     value     = aws_iam_instance_profile.default.name
   }
 
+  setting {
+    namespace = "aws:elasticbeanstalk:container:nodejs"
+    name      = "NodeCommand"
+    value     = "npm start"
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "NPM_USE_PRODUCTION"
+    value     = "false"
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "NODE_ENV"
+    value     = "production"
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:command"
+    name      = "IgnoreHealthCheck"
+    value     = "true"
+  }
+
   depends_on = [
     aws_iam_instance_profile.default
   ]
