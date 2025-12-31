@@ -2,31 +2,16 @@ name: Deploy to Elastic Beanstalk
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - 'v*'
 
 jobs:
-  require_release_tag:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Require release tag
-        run: |
-          if [[ ! "${{ github.ref }}" =~ ^refs/tags/v.*$ ]]; then
-            echo "Error: This workflow must be triggered by a tag matching 'v*' pattern"
-            exit 1
-          fi
-
   deploy:
-    needs: require_release_tag
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     environment: staging
     permissions:
       id-token: write
       contents: read
     steps:
-      - uses: actions/checkout@v6
-
       - uses: aws-actions/configure-aws-credentials@v4
         id: aws_credentials
         with:
@@ -35,16 +20,9 @@ jobs:
           output-credentials: true
       - run: aws sts get-caller-identity
 
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-          cache: 'npm'
-
-      - run: npm ci
+      - run: gh release download ${{ github.ref_name }} -p deploy.zip
         env:
-          NODE_ENV: production
-
-      - run: zip -r deploy.zip . -x "*.git*" "main.tf" "terraform.tfstate*"
+          GH_TOKEN: ${{ github.token }}
 
       - uses: einaregilsson/beanstalk-deploy@v22
         with:
