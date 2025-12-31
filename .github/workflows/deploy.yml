@@ -1,0 +1,33 @@
+name: Deploy to Elastic Beanstalk
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - run: npm ci
+        env:
+          NODE_ENV: production
+
+      - run: zip -r deploy.zip . -x "*.git*" "main.tf" "terraform.tfstate*"
+
+      - uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: elastic-beanstalk-app-application
+          environment_name: elastic-beanstalk-app-environment
+          version_label: ${{ github.ref_name }}-${{ github.run_id }}
+          region: us-east-1
+          deployment_package: deploy.zip
