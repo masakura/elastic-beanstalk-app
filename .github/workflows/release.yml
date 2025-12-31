@@ -1,0 +1,38 @@
+name: release.yml
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: github.ref_protected == true
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: aws-actions/configure-aws-credentials@v4
+        id: aws_credentials
+        with:
+          role-to-assume: arn:aws:iam::078050425310:role/github-actions
+          aws-region: us-east-1
+          output-credentials: true
+      - run: aws sts get-caller-identity
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - run: npm ci
+        env:
+          NODE_ENV: production
+
+      - run: zip -r deploy.zip . -x "*.git*" "main.tf" "terraform.tfstate*"
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: deploy.zip
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
