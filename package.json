@@ -1,6 +1,6 @@
 {
   "name": "elastic-beanstalk-app",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "type": "module",
   "main": "dist/index.js",
@@ -15,5 +15,8 @@
     "@types/koa": "^3.0.1",
     "typescript": "^5.5.3"
   },
-  "private": true
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  }
 }
