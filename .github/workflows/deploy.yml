@@ -18,6 +18,7 @@ jobs:
           fi
 
   deploy:
+    needs: require_release_tag
     runs-on: ubuntu-latest
     environment: staging
     permissions:
