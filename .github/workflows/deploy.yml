@@ -1,6 +1,7 @@
 name: Deploy to Elastic Beanstalk
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - 'v*'
@@ -13,6 +14,13 @@ jobs:
       id-token: write
       contents: read
     steps:
+      - name: Require release tag
+        run: |
+          if [[ ! "${{ github.ref }}" =~ ^refs/tags/v.*$ ]]; then
+            echo "Error: This workflow must be triggered by a tag matching 'v*' pattern"
+            exit 1
+          fi
+
       - uses: actions/checkout@v6
 
       - uses: aws-actions/configure-aws-credentials@v4
