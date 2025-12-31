@@ -9,8 +9,18 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: staging
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@v6
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        id: aws_credentials
+        with:
+          role-to-assume: arn:aws:iam::078050425310:role/github-actions
+          aws-region: us-east-1
+          output-credentials: true
 
       - uses: actions/setup-node@v6
         with:
@@ -25,8 +35,9 @@ jobs:
 
       - uses: einaregilsson/beanstalk-deploy@v22
         with:
-          aws_access_key: ${{ vars.AWS_ACCESS_KEY_ID }}
-          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_access_key: ${{ steps.aws_credentials.outputs.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ steps.aws_credentials.outputs.AWS_SECRET_ACCESS_KEY }}
+          aws_session_token: ${{ steps.aws_credentials.outputs.AWS_SESSION_TOKEN }}
           application_name: elastic-beanstalk-app-application
           environment_name: elastic-beanstalk-app-environment
           version_label: ${{ github.ref_name }}-${{ github.run_id }}
