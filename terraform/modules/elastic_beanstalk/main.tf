@@ -1,70 +1,17 @@
-terraform {
-  required_version = ">= 1.5.0"
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
+variable "project" {
+  type = string
 }
 
-provider "aws" {
-  region = "us-east-1"
+variable "tags" {
+  type = map(string)
 }
 
-locals {
-  project = "elastic-beanstalk-app"
-  tags = {
-    Project   = local.project
-    ManagedBy = "Terraform"
-  }
+variable "vpc_id" {
+  type = string
 }
 
-resource "aws_vpc" "vpc" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
-
-  tags = merge(local.tags, { Name = "${local.project}-vpc" })
-}
-
-resource "aws_internet_gateway" "internet_gateway" {
-  vpc_id = aws_vpc.vpc.id
-
-  tags = merge(local.tags, { Name = "${local.project}-internet-gateway" })
-}
-
-resource "aws_subnet" "public" {
-  vpc_id                  = aws_vpc.vpc.id
-  cidr_block              = "10.0.1.0/24"
-  availability_zone       = "us-east-1a"
-  map_public_ip_on_launch = true
-
-  tags = merge(local.tags, { Name = "${local.project}-public-subnet" })
-}
-
-resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.vpc.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.internet_gateway.id
-  }
-
-  tags = merge(local.tags, { Name = "${local.project}-public-route-table" })
-}
-
-resource "aws_route_table_association" "public" {
-  subnet_id      = aws_subnet.public.id
-  route_table_id = aws_route_table.public.id
-}
-
-output "vpc_id" {
-  value = aws_vpc.vpc.id
-}
-
-output "public_subnet_id" {
-  value = aws_subnet.public.id
+variable "public_subnet_id" {
+  type = string
 }
 
 resource "aws_iam_role" "aws-elasticbeanstalk-ec2-role" {
@@ -95,18 +42,18 @@ resource "aws_iam_role_policy_attachment" "cloud-watch" {
 }
 
 resource "aws_iam_instance_profile" "default" {
-  name = "${local.project}-profile-default"
+  name = "${var.project}-profile-default"
   role = aws_iam_role.aws-elasticbeanstalk-ec2-role.name
 }
 
 resource "aws_elastic_beanstalk_application" "application" {
-  name = "${local.project}-application"
+  name = "${var.project}-application"
 
-  tags = merge(local.tags, { Name = "${local.project}-application" })
+  tags = merge(var.tags, { Name = "${var.project}-application" })
 }
 
 resource "aws_elastic_beanstalk_environment" "environment" {
-  name                = "${local.project}-environment"
+  name                = "${var.project}-environment"
   application         = aws_elastic_beanstalk_application.application.name
   solution_stack_name = "64bit Amazon Linux 2023 v6.7.1 running Node.js 24"
 
@@ -119,13 +66,13 @@ resource "aws_elastic_beanstalk_environment" "environment" {
   setting {
     namespace = "aws:ec2:vpc"
     name      = "VPCId"
-    value     = aws_vpc.vpc.id
+    value     = var.vpc_id
   }
 
   setting {
     namespace = "aws:ec2:vpc"
     name      = "Subnets"
-    value     = aws_subnet.public.id
+    value     = var.public_subnet_id
   }
 
   setting {

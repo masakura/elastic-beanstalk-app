@@ -6,7 +6,8 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "node src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "terraform": "terraform -chdir=terraform"
   },
   "dependencies": {
     "@koa/router": "^15.1.1",
