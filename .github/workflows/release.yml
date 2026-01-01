@@ -43,5 +43,8 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: 'deploy.yml',
-              ref: context.ref
+              ref: context.ref,
+              inputs: {
+                env: 'staging'
+              }
             });

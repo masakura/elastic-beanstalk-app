@@ -11,8 +11,8 @@ resource "aws_iam_role" "github_actions" {
         }
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
-          StringEquals = {
-            "token.actions.githubusercontent.com:sub" : "repo:masakura/elastic-beanstalk-app:environment:staging",
+          StringLike = {
+            "token.actions.githubusercontent.com:sub" : "repo:masakura/elastic-beanstalk-app:environment:*",
             "token.actions.githubusercontent.com:aud" : "sts.amazonaws.com"
           }
         }

@@ -2,12 +2,22 @@ name: Deploy to Elastic Beanstalk
 
 on:
   workflow_dispatch:
+    inputs:
+      env:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - production
+          - staging
+          - development
 
 jobs:
   deploy:
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
-    environment: staging
+    environment: ${{ github.event.inputs.env }}
     permissions:
       id-token: write
       contents: read
@@ -34,7 +44,7 @@ jobs:
           aws_secret_key: ${{ steps.aws_credentials.outputs.aws-secret-access-key }}
           aws_session_token: ${{ steps.aws_credentials.outputs.aws-session-token }}
           application_name: elastic-beanstalk-app-application
-          environment_name: elastic-beanstalk-app-environment
+          environment_name: elastic-beanstalk-app-${{ github.event.inputs.env }}-environment
           version_label: ${{ github.ref_name }}-${{ github.run_id }}
           region: us-east-1
           deployment_package: deploy.zip

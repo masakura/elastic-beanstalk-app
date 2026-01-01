@@ -2,6 +2,10 @@ variable "project" {
   type = string
 }
 
+variable "env" {
+  type = string
+}
+
 variable "vpc_id" {
   type = string
 }
@@ -10,8 +14,12 @@ variable "public_subnet_id" {
   type = string
 }
 
+variable "application_name" {
+  type = string
+}
+
 resource "aws_iam_role" "aws-elasticbeanstalk-ec2-role" {
-  name = "aws-elasticbeanstalk-ec2-role"
+  name = "${var.project}-${var.env}-ec2-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
@@ -38,19 +46,13 @@ resource "aws_iam_role_policy_attachment" "cloud-watch" {
 }
 
 resource "aws_iam_instance_profile" "default" {
-  name = "${var.project}-profile-default"
+  name = "${var.project}-${var.env}-profile-default"
   role = aws_iam_role.aws-elasticbeanstalk-ec2-role.name
 }
 
-resource "aws_elastic_beanstalk_application" "application" {
-  name = "${var.project}-application"
-
-  tags = { Name = "${var.project}-application" }
-}
-
 resource "aws_elastic_beanstalk_environment" "environment" {
-  name                = "${var.project}-environment"
-  application         = aws_elastic_beanstalk_application.application.name
+  name                = "${var.project}-${var.env}-environment"
+  application         = var.application_name
   solution_stack_name = "64bit Amazon Linux 2023 v6.7.1 running Node.js 24"
 
   setting {
@@ -106,6 +108,10 @@ resource "aws_elastic_beanstalk_environment" "environment" {
   ]
 }
 
-output "eb_endpoint_url" {
+output "elastic_beanstalk_endpoint_url" {
   value = aws_elastic_beanstalk_environment.environment.endpoint_url
+}
+
+output "environment_name" {
+  value = aws_elastic_beanstalk_environment.environment.name
 }
