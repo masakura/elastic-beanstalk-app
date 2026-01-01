@@ -2,22 +2,18 @@ variable "project" {
   type = string
 }
 
-variable "tags" {
-  type = map(string)
-}
-
 resource "aws_vpc" "vpc" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_support   = true
   enable_dns_hostnames = true
 
-  tags = merge(var.tags, { Name = "${var.project}-vpc" })
+  tags = { Name = "${var.project}-vpc" }
 }
 
 resource "aws_internet_gateway" "internet_gateway" {
   vpc_id = aws_vpc.vpc.id
 
-  tags = merge(var.tags, { Name = "${var.project}-internet-gateway" })
+  tags = { Name = "${var.project}-internet-gateway" }
 }
 
 resource "aws_subnet" "public" {
@@ -26,7 +22,7 @@ resource "aws_subnet" "public" {
   availability_zone       = "us-east-1a"
   map_public_ip_on_launch = true
 
-  tags = merge(var.tags, { Name = "${var.project}-public-subnet" })
+  tags = { Name = "${var.project}-public-subnet" }
 }
 
 resource "aws_route_table" "public" {
@@ -37,7 +33,7 @@ resource "aws_route_table" "public" {
     gateway_id = aws_internet_gateway.internet_gateway.id
   }
 
-  tags = merge(var.tags, { Name = "${var.project}-public-route-table" })
+  tags = { Name = "${var.project}-public-route-table" }
 }
 
 resource "aws_route_table_association" "public" {

@@ -14,32 +14,24 @@ provider "aws" {
 
 locals {
   project = "elastic-beanstalk-app"
-  tags = {
-    Project   = local.project
-    ManagedBy = "Terraform"
-  }
 }
 
 module "network" {
   source = "./modules/network"
 
   project = local.project
-  tags    = local.tags
 }
 
 module "elastic_beanstalk" {
   source = "./modules/elastic_beanstalk"
 
   project          = local.project
-  tags             = local.tags
   vpc_id           = module.network.vpc_id
   public_subnet_id = module.network.public_subnet_id
 }
 
 module "iam" {
   source = "./modules/iam"
-
-  tags = local.tags
 }
 
 output "eb_endpoint_url" {

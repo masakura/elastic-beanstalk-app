@@ -19,8 +19,6 @@ resource "aws_iam_role" "github_actions" {
       }
     ]
   })
-
-  tags = var.tags
 }
 
 resource "aws_iam_role_policy_attachment" "admin" {
@@ -28,6 +26,3 @@ resource "aws_iam_role_policy_attachment" "admin" {
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
 }
 
-variable "tags" {
-  type = map(string)
-}

@@ -2,10 +2,6 @@ variable "project" {
   type = string
 }
 
-variable "tags" {
-  type = map(string)
-}
-
 variable "vpc_id" {
   type = string
 }
@@ -49,7 +45,7 @@ resource "aws_iam_instance_profile" "default" {
 resource "aws_elastic_beanstalk_application" "application" {
   name = "${var.project}-application"
 
-  tags = merge(var.tags, { Name = "${var.project}-application" })
+  tags = { Name = "${var.project}-application" }
 }
 
 resource "aws_elastic_beanstalk_environment" "environment" {
