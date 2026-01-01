@@ -88,12 +88,6 @@ resource "aws_elastic_beanstalk_environment" "environment" {
   }
 
   setting {
-    namespace = "aws:elasticbeanstalk:container:nodejs"
-    name      = "NodeCommand"
-    value     = "npm start"
-  }
-
-  setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name      = "NPM_USE_PRODUCTION"
     value     = "false"
