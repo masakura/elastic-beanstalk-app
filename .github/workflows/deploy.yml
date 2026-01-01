@@ -19,7 +19,7 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@v4
         id: aws_credentials
         with:
-          role-to-assume: arn:aws:iam::078050425310:role/github-actions
+          role-to-assume: arn:aws:iam::078050425310:role/elastic-beanstalk-app-github-actions
           aws-region: us-east-1
           output-credentials: true
       - run: aws sts get-caller-identity

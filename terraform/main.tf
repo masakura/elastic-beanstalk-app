@@ -36,6 +36,12 @@ module "elastic_beanstalk" {
   public_subnet_id = module.network.public_subnet_id
 }
 
+module "iam" {
+  source = "./modules/iam"
+
+  tags = local.tags
+}
+
 output "eb_endpoint_url" {
   value = module.elastic_beanstalk.eb_endpoint_url
 }
