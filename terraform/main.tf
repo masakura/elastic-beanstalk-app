@@ -14,7 +14,7 @@ provider "aws" {
 
 locals {
   project = "elastic-beanstalk-app"
-  envs    = ["production", "staging", "development"]
+  envs    = ["production", "staging", "master"]
 }
 
 module "network" {

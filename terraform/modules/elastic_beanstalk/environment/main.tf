@@ -51,7 +51,7 @@ resource "aws_iam_instance_profile" "default" {
 }
 
 resource "aws_elastic_beanstalk_environment" "environment" {
-  name                = "${var.project}-${var.env}-environment"
+  name                = "${var.project}-${var.env}-env"
   application         = var.application_name
   solution_stack_name = "64bit Amazon Linux 2023 v6.7.1 running Node.js 24"
 

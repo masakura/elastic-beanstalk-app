@@ -1,22 +1,31 @@
-name: Deploy to Elastic Beanstalk
+name: Master Branch Deploy
 
 on:
-  workflow_dispatch:
-    inputs:
-      env:
-        description: 'Target environment'
-        required: true
-        default: 'staging'
-        type: choice
-        options:
-          - production
-          - staging
-          - development
+  push:
+    branches:
+      - master
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.env }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - run: npm ci
+        env:
+          NODE_ENV: production
+
+      - run: zip -r deploy.zip . -x "*.git*" "main.tf" "terraform"
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: deploy-artifact
+          path: deploy.zip
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: development
     permissions:
       id-token: write
       contents: read
@@ -25,17 +34,16 @@ jobs:
         with:
           fetch-depth: 1
 
+      - uses: actions/download-artifact@v7
+        with:
+          name: deploy-artifact
+
       - uses: aws-actions/configure-aws-credentials@v4
         id: aws_credentials
         with:
           role-to-assume: arn:aws:iam::078050425310:role/elastic-beanstalk-app-github-actions
           aws-region: us-east-1
           output-credentials: true
-      - run: aws sts get-caller-identity
-
-      - run: gh release download ${{ github.ref_name }} -p deploy.zip
-        env:
-          GH_TOKEN: ${{ github.token }}
 
       - uses: einaregilsson/beanstalk-deploy@v22
         with:
@@ -43,7 +51,7 @@ jobs:
           aws_secret_key: ${{ steps.aws_credentials.outputs.aws-secret-access-key }}
           aws_session_token: ${{ steps.aws_credentials.outputs.aws-session-token }}
           application_name: elastic-beanstalk-app-application
-          environment_name: elastic-beanstalk-app-${{ github.event.inputs.env }}-env
-          version_label: ${{ github.ref_name }}-${{ github.run_id }}
+          environment_name: elastic-beanstalk-app-master-env
+          version_label: master-${{ github.run_id }}
           region: us-east-1
           deployment_package: deploy.zip
