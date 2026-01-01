@@ -35,6 +35,9 @@ jobs:
     permissions:
       actions: write
       contents: read
+    strategy:
+      matrix:
+        env: [ staging, production ]
     steps:
       - uses: actions/github-script@v7
         with:
@@ -45,6 +48,6 @@ jobs:
               workflow_id: 'deploy.yml',
               ref: context.ref,
               inputs: {
-                env: 'staging'
+                env: '${{ matrix.env }}'
               }
             });
