@@ -1,3 +1,5 @@
+/deploy.zip
+
 **/.terraform/*
 *.tfstate
 *.tfstate.*

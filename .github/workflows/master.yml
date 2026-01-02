@@ -15,7 +15,7 @@ jobs:
         env:
           NODE_ENV: production
 
-      - run: zip -r deploy.zip . -x "*.git*" "main.tf" "terraform"
+      - run: npm run pack
 
       - uses: actions/upload-artifact@v6
         with:
